@@ -1,6 +1,8 @@
 {% set name = "ansible-core" %}
 {% set version = "2.13.3" %}
+{% set version_major_minor = ".".join(version.split(".")[:2]) %}
 
+{% set python_min = "3.8" %}
 
 package:
   name: {{ name|lower }}
@@ -11,21 +13,21 @@ source:
   sha256: eec5042530ff1c0c8d13a36fa047c6dd9157efeefd464a856b4ce38be4cd1988
 
 build:
-  number: 0
+  number: 1
   script: {{ PYTHON }} -m pip install . -vv
   noarch: python
 
 requirements:
   host:
     - pip
-    - python >=3.5
+    - python {{ python_min }}
   run:
     - cryptography
-    - jinja2
+    - jinja2 >=3.0.0
     - packaging
-    - python >=3.5
-    - pyyaml
-    - resolvelib <0.6.0,>=0.5.3
+    - python >={{ python_min }}
+    - pyyaml >=5.1
+    - resolvelib >=0.5.3,<0.9.0
 
 test:
   imports:
@@ -33,6 +35,17 @@ test:
     - ansible._vendor
   commands:
     - pip check
+    - ansible --version
+    - ansible-config --version
+    #- ansible-connection --version  # hangs waiting for input
+    - ansible-console --version
+    - ansible-doc --version
+    - ansible-galaxy --version
+    - ansible-inventory --version
+    - ansible-playbook --version
+    - ansible-pull --version
+    #- ansible-test --version
+    - ansible-vault --version
   requires:
     - pip
 
@@ -41,8 +54,11 @@ about:
   summary: Radically simple IT automation
   license: GPL-3.0-or-later
   license_file: COPYING
+  doc_url: https://docs.ansible.com/ansible-core/{{ version_major_minor }}/index.html
+  dev_url: https://github.com/ansible/ansible
 
 extra:
   recipe-maintainers:
     - mariusvniekerk
     - etcet
+    - chenghlee
