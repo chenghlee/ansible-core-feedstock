@@ -13,8 +13,7 @@ source:
   sha256: eec5042530ff1c0c8d13a36fa047c6dd9157efeefd464a856b4ce38be4cd1988
 
 build:
-  number: 1
-  script: {{ PYTHON }} -m pip install . -vv
+  number: 2
   noarch: python
 
 requirements:
@@ -35,7 +34,8 @@ test:
     - ansible._vendor
   commands:
     - pip check
-    - ansible --version
+    # Ensure ansible ignores system locations for its modules
+    - ansible --version | grep -v /usr/share/ansible
     - ansible-config --version
     #- ansible-connection --version  # hangs waiting for input
     - ansible-console --version
