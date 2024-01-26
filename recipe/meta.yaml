@@ -1,5 +1,8 @@
 {% set name = "ansible-core" %}
 {% set version = "2.16.2" %}
+{% set version_major_minor = ".".join(version.split(".")[:2]) %}
+
+{% set python_min = "3.10" %}
 
 package:
   name: {{ name|lower }}
@@ -22,19 +25,18 @@ build:
     - ansible-pull=ansible.cli.pull:main
     - ansible-vault=ansible.cli.vault:main
     - ansible-connection=ansible.cli.scripts.ansible_connection_cli_stub:main
-  script: {{ PYTHON }} -m pip install . -vv
   noarch: python
 
 requirements:
   host:
     - setuptools >=45.2.0
     - pip
-    - python >=3.9
+    - python {{ python_min }}
   run:
     - cryptography
     - jinja2 >=3.0.0
     - packaging
-    - python >=3.9
+    - python >={{ python_min }}
     - pyyaml >=5.1
     - resolvelib >=0.5.3,<1.1.0
     # https://docs.ansible.com/ansible/latest/user_guide/windows_faq.html#can-ansible-run-on-windows
@@ -45,16 +47,18 @@ test:
     - ansible
   commands:
     - pip check
-    - ansible --help
-    - ansible-config --help
-    - ansible-console --help
-    - ansible-doc --help
-    - ansible-galaxy --help
-    - ansible-inventory --help
-    - ansible-playbook --help
-    - ansible-pull --help
-    - ansible-vault --help
-    - ansible-connection --help
+    # Ensure ansible ignores system locations for its modules
+    - ansible --version | grep -v /usr/share/ansible
+    - ansible-config --version
+    #- ansible-connection --version  # hangs waiting for input
+    - ansible-console --version
+    - ansible-doc --version
+    - ansible-galaxy --version
+    - ansible-inventory --version
+    - ansible-playbook --version
+    - ansible-pull --version
+    - ansible-test --version
+    - ansible-vault --version
   requires:
     - pip
 
@@ -63,9 +67,12 @@ about:
   summary: Radically simple IT automation
   license: GPL-3.0-or-later
   license_file: COPYING
+  doc_url: https://docs.ansible.com/ansible-core/{{ version_major_minor }}/index.html
+  dev_url: https://github.com/ansible/ansible
 
 extra:
   recipe-maintainers:
     - pavelzw
     - mariusvniekerk
     - etcet
+    - chenghlee
